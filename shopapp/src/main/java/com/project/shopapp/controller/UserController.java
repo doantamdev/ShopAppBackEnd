@@ -85,6 +85,8 @@ public class UserController {
         }
     }
 
+
+
     @PostMapping("/details")
     public ResponseEntity<UserResponse> getUserDetails(
             @RequestHeader("Authorization") String authorizationHeader

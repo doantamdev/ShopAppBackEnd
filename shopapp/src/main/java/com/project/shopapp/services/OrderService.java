@@ -125,6 +125,7 @@ public class OrderService implements IOrderService{
 
     @Override
     public Page<Order> getOrdersByKeyword(String keyword, Pageable pageable) {
-        return null;
+        return orderRepository.findByKeyword(keyword, pageable);
     }
+
 }
