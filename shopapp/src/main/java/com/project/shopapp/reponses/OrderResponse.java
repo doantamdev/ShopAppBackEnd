@@ -6,6 +6,7 @@ import com.project.shopapp.models.OrderDetail;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -69,14 +70,14 @@ public class OrderResponse {
                 .email(order.getEmail())
                 .address(order.getAddress())
                 .note(order.getNote())
-                //.orderDate(order.getOrderDate())
+                .orderDate(order.getOrderDate())
                 .status(order.getStatus())
                 .totalMoney(order.getTotalMoney())
                 .shippingMethod(order.getShippingMethod())
                 .shippingAddress(order.getShippingAddress())
                 .shippingDate(order.getShippingDate())
                 .paymentMethod(order.getPaymentMethod())
-                //.orderDetails(order.getOrderDetails())
+                .orderDetails(order.getOrderDetails())
                 .build();
         return orderResponse;
     }

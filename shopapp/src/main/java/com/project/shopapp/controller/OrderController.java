@@ -1,11 +1,12 @@
 package com.project.shopapp.controller;
 
 import com.project.shopapp.components.LocalizationUtils;
-import com.project.shopapp.dtos.OrderDTO;
+import com.project.shopapp.dtos.*;
 import com.project.shopapp.models.Order;
 import com.project.shopapp.reponses.OrderListResponse;
 import com.project.shopapp.reponses.OrderResponse;
-import com.project.shopapp.services.OrderService;
+import com.project.shopapp.services.IOrderService;
+import com.project.shopapp.utils.MessageKeys;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -16,37 +17,34 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
-
 @RestController
+@RequestMapping("${api.prefix}/orders")
 @RequiredArgsConstructor
-@RequestMapping("${api.prefix}/orders") //http://localhost:8088/api/v1/orders
 public class OrderController {
-
-    private final OrderService orderService;
+    private final IOrderService orderService;
     private final LocalizationUtils localizationUtils;
-
     @PostMapping("")
-    public ResponseEntity<?> createOrder(@RequestBody @Valid OrderDTO orderDTO,
-                                            BindingResult result) {
+    public ResponseEntity<?> createOrder(
+            @Valid @RequestBody OrderDTO orderDTO,
+            BindingResult result
+    ) {
         try {
-            if (result.hasErrors()) {
-                List<String> errorMessage = result.getFieldErrors()
+            if(result.hasErrors()) {
+                List<String> errorMessages = result.getFieldErrors()
                         .stream()
                         .map(FieldError::getDefaultMessage)
                         .toList();
-                return ResponseEntity.badRequest().body(errorMessage);
+                return ResponseEntity.badRequest().body(errorMessages);
             }
-            orderService.createOrder(orderDTO);
-            return ResponseEntity.ok(orderDTO);
+            Order orderResponse = orderService.createOrder(orderDTO);
+            return ResponseEntity.ok(orderResponse);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
-    @GetMapping("/user/{user_id}")
+    @GetMapping("/user/{user_id}") // Thêm biến đường dẫn "user_id"
     //GET http://localhost:8088/api/v1/orders/user/4
     public ResponseEntity<?> getOrders(@Valid @PathVariable("user_id") Long userId) {
         try {
@@ -67,13 +65,13 @@ public class OrderController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
-
     @PutMapping("/{id}")
+    //PUT http://localhost:8088/api/v1/orders/2
+    //công việc của admin
     public ResponseEntity<?> updateOrder(
-           @Valid @PathVariable Long id,
-           @Valid @RequestBody OrderDTO orderDTO)
-    {
+            @Valid @PathVariable long id,
+            @Valid @RequestBody OrderDTO orderDTO) {
+
         try {
             Order order = orderService.updateOrder(id, orderDTO);
             return ResponseEntity.ok(order);
@@ -81,13 +79,14 @@ public class OrderController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOrder(@Valid @PathVariable Long id){
+    public ResponseEntity<?> deleteOrder(@Valid @PathVariable Long id) {
+        //xóa mềm => cập nhật trường active = false
         orderService.deleteOrder(id);
-        return ResponseEntity.ok("Delete Order" + id);
+        String result = localizationUtils.getLocalizedMessage(
+                MessageKeys.DELETE_ORDER_SUCCESSFULLY, id);
+        return ResponseEntity.ok().body(result);
     }
-
     @GetMapping("/get-orders-by-keyword")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<OrderListResponse> getOrdersByKeyword(
@@ -113,6 +112,4 @@ public class OrderController {
                 .totalPages(totalPages)
                 .build());
     }
-
-
 }
