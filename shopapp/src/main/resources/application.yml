@@ -28,3 +28,8 @@ jwt:
   expiration: 2592000 #30 days = 30 * 24 * 60 * 60
   expiration-refresh-token: 5184000 #60 days = 60 * 24 * 60 * 60
   secretKey: FTE7NPRi/IilpZbZ254j50KcszR18L1EZ7Os7cu3XSY=
+
+logging:
+  level:
+    org:
+      springframework.security: DEBUG
